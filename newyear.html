@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy New Year! 🐾</title>
+    <style>
+        :root {
+            --pink: #ffafcc;
+            --light-blue: #a2d2ff;
+            --dark-pink: #fb6f92;
+            --white: #ffffff;
+            --card-width: 420px;
+        }
+
+        /* Page layout */
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at 10% 10%, #fff4f8 0%, #fef1f5 20%, #ffeef6 60%);
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3vh 2vw;
+            text-align: center;
+            overflow-y: auto; /* allow scroll on small viewports */
+        }
+
+        /* Card */
+        .container {
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), #fff);
+            padding: 1.6rem;
+            border-radius: 24px;
+            box-shadow: 0 14px 30px rgba(255, 175, 204, 0.18);
+            border: 4px solid rgba(255,175,204,0.7);
+            max-width: var(--card-width);
+            width: 100%;
+            position: relative;
+            z-index: 10;
+            animation: popIn 600ms cubic-bezier(.2,.9,.2,1);
+        }
+
+        @keyframes popIn {
+            from { transform: translateY(10px) scale(.98); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        h1 {
+            color: var(--dark-pink);
+            font-size: clamp(1.4rem, 3.5vw, 2rem);
+            margin: 8px 0 6px;
+        }
+
+        .sticker-img {
+            display: inline-block;
+            width: clamp(40px, 10vw, 72px);
+            height: auto;
+            margin-left: 10px;
+            vertical-align: middle;
+            border-radius: 10px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+        }
+
+        p { color: #555; font-size: clamp(0.95rem, 2.6vw, 1.05rem); margin: 6px 0; }
+
+        .kitty-img {
+            width: clamp(110px, 28vw, 180px);
+            height: auto;
+            margin: 0 auto 14px;
+            border-radius: 16px;
+            display: block;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            transition: transform 0.6s ease;
+        }
+
+        .kitty-img:hover { transform: translateY(-6px) scale(1.02); }
+
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            margin-top: 18px;
+            position: relative;
+            min-height: 56px;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: transform 160ms ease, background-color 240ms ease, box-shadow 160ms ease;
+            font-weight: 700;
+            min-width: 110px;
+            touch-action: manipulation;
+        }
+
+        button:active { transform: translateY(2px) scale(.99); }
+
+        #yesBtn { background-color: var(--pink); color: white; box-shadow: 0 8px 18px rgba(251,111,146,0.16); }
+        #yesBtn:hover, #yesBtn:focus { background-color: var(--dark-pink); transform: scale(1.04); }
+
+        #noBtn { background-color: var(--light-blue); color: white; position: absolute; right: calc(50% - 55px); top: 0; box-shadow: 0 8px 18px rgba(162,210,255,0.12); }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            top: -30px;
+            z-index: 5;
+            pointer-events: none;
+            border-radius: 3px;
+            transform-origin: center;
+            animation: fall linear forwards, spin 1200ms linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fall { to { transform: translateY(120vh) rotate(540deg); opacity: 0.9; } }
+
+        .hidden { display: none; }
+
+        #dateNote { color: var(--dark-pink); line-height: 1.6; }
+
+        /* Success state subtle entrance */
+        #successState { animation: popIn 520ms ease; }
+
+        /* Mobile adjustments */
+        @media (max-width: 480px) {
+            :root { --card-width: 360px; }
+            .container { padding: 1.2rem; border-radius: 18px; }
+            .btn-container { gap: 12px; }
+            button { min-width: 100px; padding: 14px 16px; }
+            #noBtn { right: calc(50% - 50px); }
+            #shareBtn { padding: 14px 18px; font-size: 1rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .kitty-img, .container, .confetti { animation: none !important; transition: none !important; }
+        }
+        /* toast */
+        #toast {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 28px;
+            background: rgba(0,0,0,0.78);
+            color: white;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            z-index: 60;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+        }
+
+        /* Background overlay for hearts and snow */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 4; /* behind the card (10) */
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .overlay > div { position: absolute; inset: 0; }
+
+        .heart, .snow {
+            position: absolute;
+            top: -6vh;
+            will-change: transform, opacity;
+            pointer-events: none;
+            user-select: none;
+            white-space: nowrap;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+
+        .heart { color: #ff6fa2; font-size: 18px; transform-origin: center; }
+        .snow { color: #ff00aa; font-size: 14px; transform-origin: center; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.06)); }
+
+        @keyframes fallHeart {
+            0% { transform: translateY(-10vh) rotate(0deg) translateX(0); opacity: 0.95; }
+            50% { transform: translateY(40vh) rotate(120deg) translateX(6vw); }
+            100% { transform: translateY(110vh) rotate(360deg) translateX(-6vw); opacity: 0.05; }
+        }
+
+        @keyframes fallSnow {
+            0% { transform: translateY(-10vh) rotate(0deg) translateX(0); opacity: 0.9; }
+            25% { transform: translateY(30vh) rotate(40deg) translateX(-2vw); }
+            50% { transform: translateY(60vh) rotate(80deg) translateX(2vw); }
+            100% { transform: translateY(130vh) rotate(160deg) translateX(0); opacity: 0.03; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .heart, .snow { animation: none !important; opacity: 0.9 !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay" aria-hidden="true">
+        <div id="hearts"></div>
+        <div id="snows"></div>
+    </div>
+
+    <div class="container" id="mainCard">
+        <div id="initialState">
+            <img id="initialImg" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMjF5bzQ2cWdpdTU0azBydDJmcDdpN3hwM3c0NHlyNzQ1azVnbXd4YyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/vVegyymxA90fkY8jkE/giphy.gif" alt="Cute Kitty" class="kitty-img" onerror="this.onerror=null;this.src='https://placekitten.com/360/240';">
+            <h1>Happy New Year 2026! ✨
+                <img id="stickerImg" src="https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3cm1wazl3eXppbXB2bHZjNDZpYmNhOWtzZDUwc2d3Z3BkaXU1azM1ciZlcD12MV9naWZzX3NlYXJjaCZjdD1n/pmA9ptnSv9hx6MwBww/giphy.gif" alt="Sparkles" class="sticker-img" onerror="this.onerror=null;this.src='https://placekitten.com/120/80';">
+            </h1>
+            <p>I have a very important question to start the year with.</p>
+            <p><strong>Will you start the new year with me?
+             Let's make 2026 unforgettable...</strong></p>
+            
+            <div class="btn-container">
+                <button id="yesBtn" onclick="showLove()">YES! 💖</button>
+                <button id="noBtn" onmouseover="moveNo()" onclick="moveNo()">No 🥹</button>
+            </div>
+        </div>
+
+        <div id="successState" class="hidden">
+            <img id="successImg" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZueHpxYmR4Znd4Znd4Znd4Znd4Znd4Znd4Znd4Znd4Znd4dyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/MDJ9IbxxvDUQM/giphy.gif" alt="Happy Kitty" class="kitty-img" onerror="this.onerror=null;this.src='https://placekitten.com/360/240';">
+            <h1>Yay! It's a Date! 🌸</h1>
+            <div id="dateNote">
+                <p>My year is already 100x better! I can't wait to spend a beautiful day with you. You've made me the happiest person today. ✨</p>
+                <p>I'll pick you up! 🐾</p>
+            </div>
+            <div style="margin-top:14px; display:flex; justify-content:center; gap:12px;">
+                <button id="shareBtn">Share ❤️</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" aria-live="polite" class="hidden"></div>
+
+    <script>
+        (function () {
+            const noBtn = document.getElementById('noBtn');
+            const yesBtn = document.getElementById('yesBtn');
+            const margin = 18; // safe margin from edges
+
+            function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+            function moveNo() {
+                const btn = noBtn;
+                const w = btn.offsetWidth;
+                const h = btn.offsetHeight;
+                const maxX = Math.max(0, window.innerWidth - w - margin);
+                const maxY = Math.max(0, window.innerHeight - h - margin);
+
+                const x = clamp(Math.random() * maxX, margin, maxX);
+                const y = clamp(Math.random() * maxY, margin, maxY);
+
+                btn.style.position = 'fixed';
+                btn.style.left = x + 'px';
+                btn.style.top = y + 'px';
+
+                // Friendly nudge animation for Yes button using transforms
+                if (yesBtn) {
+                    yesBtn.animate([
+                        { transform: 'scale(1)' },
+                        { transform: 'scale(1.08)' },
+                        { transform: 'scale(1)' }
+                    ], { duration: 340, easing: 'ease-out' });
+                }
+            }
+
+            // Ensure 'No' stays in view on resize
+            function keepNoInView() {
+                const btn = noBtn;
+                const rect = btn.getBoundingClientRect();
+                const w = rect.width, h = rect.height;
+                let left = rect.left, top = rect.top;
+                const maxX = window.innerWidth - w - margin;
+                const maxY = window.innerHeight - h - margin;
+                left = clamp(left, margin, maxX);
+                top = clamp(top, margin, maxY);
+                btn.style.left = left + 'px';
+                btn.style.top = top + 'px';
+            }
+
+            // Show success state and launch confetti
+            function showLove() {
+                document.getElementById('initialState').classList.add('hidden');
+                document.getElementById('successState').classList.remove('hidden');
+                createStickers();
+                // ensure scroll to card on small devices
+                setTimeout(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, 50);
+            }
+
+            function createStickers() {
+                const colors = ['#ffafcc', '#a2d2ff', '#ffc8dd', '#bde0fe', '#ffd6a5', '#caffbf'];
+                const count = Math.min(80, Math.floor(window.innerWidth / 6));
+                for (let i = 0; i < count; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    const dur = (Math.random() * 2 + 2).toFixed(2);
+                    confetti.style.animationDuration = dur + 's';
+                    confetti.style.opacity = (0.6 + Math.random() * 0.5).toFixed(2);
+                    document.body.appendChild(confetti);
+                    // remove after animation finishes to keep DOM clean
+                    setTimeout(() => { confetti.remove(); }, (parseFloat(dur) * 1000) + 800);
+                }
+            }
+
+            // Attach events
+            noBtn.addEventListener('mouseenter', moveNo);
+            noBtn.addEventListener('click', moveNo);
+            noBtn.addEventListener('touchstart', function (e) { e.preventDefault(); moveNo(); }, { passive: false });
+
+            yesBtn.addEventListener('click', showLove);
+            const shareBtn = document.getElementById('shareBtn');
+            if (shareBtn) shareBtn.addEventListener('click', sharePage);
+
+            window.addEventListener('resize', keepNoInView);
+
+            // toast helper
+            function showToast(msg, time = 1800) {
+                const toast = document.getElementById('toast');
+                toast.textContent = msg;
+                toast.classList.remove('hidden');
+                toast.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 260, easing: 'ease-out' });
+                setTimeout(() => { toast.classList.add('hidden'); }, time);
+            }
+
+            // share with Web Share API or fallback to copy link
+            function sharePage() {
+                const shareData = { title: document.title, text: 'I said YES! 💖', url: window.location.href };
+                if (navigator.share) {
+                    navigator.share(shareData).catch(() => { showToast('Could not open share'); });
+                } else if (navigator.clipboard) {
+                    navigator.clipboard.writeText(window.location.href).then(() => {
+                        showToast('Link copied to clipboard');
+                    }).catch(() => { showToast('Copy failed'); });
+                } else {
+                    showToast('Share not supported');
+                }
+            }
+
+            // expose functions for inline attributes compatibility (optional)
+            window.moveNo = moveNo;
+            window.showLove = showLove;
+
+            // --- Background hearts & snow overlay ---
+            (function () {
+                if (matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+                const heartsRoot = document.getElementById('hearts');
+                const snowsRoot = document.getElementById('snows');
+                let activeHearts = 0, activeSnows = 0;
+                const maxHearts = 60, maxSnows = 40;
+
+                function rand(min, max) { return Math.random() * (max - min) + min; }
+
+                function spawnHeart() {
+                    if (!heartsRoot || activeHearts >= maxHearts) return;
+                    activeHearts++;
+                    const el = document.createElement('span');
+                    el.className = 'heart';
+                    el.textContent = '❤';
+                    const left = rand(2, 98);
+                    const size = Math.round(rand(12, 28));
+                    el.style.left = left + 'vw';
+                    el.style.fontSize = size + 'px';
+                    const dur = rand(3800, 9000);
+                    el.style.animation = `fallHeart ${dur}ms linear forwards`;
+                    el.style.opacity = (0.6 + Math.random() * 0.4).toFixed(2);
+                    heartsRoot.appendChild(el);
+                    setTimeout(() => { el.remove(); activeHearts = Math.max(0, activeHearts - 1); }, dur + 200);
+                }
+
+                function spawnSnow() {
+                    if (!snowsRoot || activeSnows >= maxSnows) return;
+                    activeSnows++;
+                    const el = document.createElement('span');
+                    el.className = 'snow';
+                    el.textContent = '❆';
+                    const left = rand(1, 99);
+                    const size = Math.round(rand(10, 20));
+                    el.style.left = left + 'vw';
+                    el.style.fontSize = size + 'px';
+                    const dur = rand(6000, 14000);
+                    el.style.animation = `fallSnow ${dur}ms ease-in forwards`;
+                    el.style.opacity = (0.5 + Math.random() * 0.6).toFixed(2);
+                    snowsRoot.appendChild(el);
+                    setTimeout(() => { el.remove(); activeSnows = Math.max(0, activeSnows - 1); }, dur + 300);
+                }
+
+                // gentle continuous spawn with small jitter
+                const heartTimer = setInterval(() => { if (Math.random() < 0.7) spawnHeart(); }, 300);
+                const snowTimer = setInterval(() => { if (Math.random() < 0.55) spawnSnow(); }, 420);
+
+                // stop and cleanup when page unloads
+                window.addEventListener('beforeunload', () => { clearInterval(heartTimer); clearInterval(snowTimer); });
+            })();
+        })();
+    </script>
+</body>
+</html>
